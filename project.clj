@@ -9,11 +9,7 @@
             [lein-swank "1.4.4"]
             [codox "0.6.1"]]
   :dependencies [[org.clojure/clojure "1.4.0"]
-                 [com.orientechnologies/orient-commons "1.1.0"]
-                 [com.orientechnologies/orientdb-client "1.1.0"]
-                 [com.orientechnologies/orientdb-core "1.1.0"]
-                 [com.orientechnologies/orientdb-object "1.1.0"]
-                 ]
+                 [com.orientechnologies/orientdb-graphdb "2.0.4"]]
   :repositories {"sonatype" "https://oss.sonatype.org/content/groups/public/"}
   :autodoc {:name "clj-orient"
             :description "Wrapper for the OrientDB Native APIs. It supports version 1.1 of the APIs."

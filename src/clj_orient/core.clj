@@ -15,15 +15,14 @@
   clj-orient.core
   (:refer-clojure :exclude [load])
   (:import (com.orientechnologies.orient.client.remote OServerAdmin)
-    (com.orientechnologies.orient.core.db ODatabase ODatabaseComplex ODatabasePoolBase ODatabaseRecordThreadLocal)
+    (com.orientechnologies.orient.core.db ODatabase ODatabasePoolBase ODatabaseRecordThreadLocal)
     (com.orientechnologies.orient.core.db.document ODatabaseDocumentTx ODatabaseDocumentPool)
-    (com.orientechnologies.orient.core.db.record ODatabaseRecord OTrackedList OTrackedSet OTrackedMap)
+    (com.orientechnologies.orient.core.db.record OTrackedList OTrackedSet OTrackedMap)
     (com.orientechnologies.orient.core.hook ORecordHook ORecordHookAbstract)
     (com.orientechnologies.orient.core.id ORecordId ORID)
     (com.orientechnologies.orient.core.metadata.schema OClass OProperty OClass$INDEX_TYPE OType)
     (com.orientechnologies.orient.core.record ORecord)
     (com.orientechnologies.orient.core.record.impl ODocument ORecordBytes)
-    com.orientechnologies.orient.core.storage.OStorage$CLUSTER_TYPE
     (com.orientechnologies.orient.core.intent OIntentMassiveInsert OIntentMassiveRead))
   (:require clojure.set)
   (:use clojure.template))
@@ -182,18 +181,13 @@
 (defn cluster-id "" [kname] (.getClusterIdByName *db* (kw->oclass-name kname)))
 (defn cluster-type "" [clname] (keyword (.getClusterType *db* (oclass-name->kw clname))))
 
-(def ^:private kw->cluster-type
-  {:physical OStorage$CLUSTER_TYPE/PHYSICAL
-   :memory   OStorage$CLUSTER_TYPE/MEMORY})
 (defn add-cluster! "Type in #{:physical, :memory}"
   ([kname type]
    (.addCluster *db*
      (kw->oclass-name kname)
-     (kw->cluster-type type)
      (into-array [])))
   ([kname type location data-segment]
    (.addCluster *db*
-     (str (kw->cluster-type type))
      (kw->oclass-name kname)
      location
      data-segment
@@ -215,12 +209,6 @@
           (recur (ODatabaseDocumentTx. db))
           (.exists ^ODatabase db))))
 
-(defn db-info "Returns information relevant to the DB as a hash-map."
-  ([] (db-info *db*))
-  ([^ODatabaseRecord db]
-   {:name (.getName db),           :url (.getURL db),
-    :status (str (.getStatus db)), :user (.getUser db)}))
-
 (defmacro with-tx
   "Runs the following forms inside a transaction.
 If an exception arrises, the transaction will fail inmediately and do an automatic rollback.
@@ -240,7 +228,7 @@ The exception will be rethrown so the programmer can catch it."
 (defn document
   "Returns a newly created document given the document's class (as a keyword).
 It can optionally take a Clojure hash-map to set the document's properties."
-  ([kclass] (CljODoc. (ODocument. *db* (kw->oclass-name kclass))))
+  ([kclass] (CljODoc. (ODocument. (kw->oclass-name kclass))))
   ([kclass properties] (merge (document kclass) properties)))
 
 (def +intents+ {:massive-read (OIntentMassiveRead.), :massive-write (OIntentMassiveInsert.)})
